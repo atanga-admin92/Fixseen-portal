@@ -27,7 +27,7 @@ WORKDIR /app
 # Runtime libs only (no build tools)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
-    libqpdf29 \
+    libqpdf28t64 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from builder
