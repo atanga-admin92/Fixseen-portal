@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Staff Directory — FixSeen{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <div class="page-title">Staff Directory</div>
+      <div class="page-subtitle">Employees whose IDs are matched against uploaded PDFs</div>
+    </div>
+    <div class="flex gap-8">
+      <a href="{% url 'client:employee_import' %}" class="btn btn-secondary">
+        {% include "icons/upload.html" %} Import CSV
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="get" style="flex:1;max-width:380px;">
+      <div class="search-bar">
+        {% include "icons/search.html" %}
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name, ID or NRC…" />
+      </div>
+    </form>
+    {% if q %}<a href="{% url 'client:employee_list' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Employee ID</th><th>Name</th><th>Email</th>
+          <th>NRC</th><th>Password</th><th>Department</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+        <tr>
+          <td><code style="background:var(--gray-100);padding:2px 8px;border-radius:6px;font-size:13px;">{{ emp.employee_id }}</code></td>
+          <td>
+            <div style="font-weight:600;font-size:14px;color:var(--gray-900);">{{ emp.last_name }} {{ emp.first_name }}</div>
+          </td>
+          <td style="font-size:13px;color:var(--gray-500);">{{ emp.email }}</td>
+          <td style="font-family:monospace;font-size:13px;color:var(--gray-500);">{{ emp.nrc|default:"—" }}</td>
+          <td>
+            <code style="background:var(--blue-light);color:var(--blue);padding:2px 8px;
+                         border-radius:6px;font-size:13px;font-weight:700;">{{ emp.payslip_password }}</code>
+          </td>
+          <td style="font-size:13px;color:var(--gray-500);">{{ emp.department|default:"—" }}</td>
+          <td>
+            {% if emp.is_active %}
+            <span class="badge badge-active"><span class="badge-dot"></span>Active</span>
+            {% else %}
+            <span class="badge badge-suspended"><span class="badge-dot"></span>Inactive</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">
+          <div class="empty-state">
+            <div class="empty-state-icon">{% include "icons/users.html" %}</div>
+            <div class="empty-state-title">No employees yet</div>
+            <div class="empty-state-sub">Import your staff directory to begin matching payslip pages.</div>
+            <a href="{% url 'client:employee_import' %}" class="btn btn-primary">{% include "icons/upload.html" %} Import CSV</a>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Send History — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-row">
+    <div><div class="page-title">Send History</div><div class="page-subtitle">All payslip batches sent from your account</div></div>
+    <a href="{% url 'client:upload_pdf' %}" class="btn btn-primary">{% include "icons/send.html" %} New Send</a>
+  </div>
+</div>
+<div class="card"><div class="table-wrap"><table>
+  <thead><tr><th>Date</th><th>Period</th><th>File</th><th>Sent</th><th>Credits</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    {% for job in jobs %}
+    <tr>
+      <td><div style="font-size:13.5px;font-weight:500;">{{ job.created_at|date:"d M Y" }}</div><div class="td-muted">{{ job.created_at|time:"H:i" }}</div></td>
+      <td style="font-size:13.5px;font-weight:500;">{{ job.payroll_period|default:"—" }}</td>
+      <td style="font-size:12.5px;color:var(--gray-500);font-family:monospace;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ job.file_name|default:"—" }}</td>
+      <td style="font-weight:600;">{{ job.emails_sent }}</td>
+      <td><span style="font-size:13px;font-weight:600;color:var(--orange);">{{ job.credits_used }}</span></td>
+      <td><span class="badge badge-{{ job.status }}"><span class="badge-dot"></span>{{ job.get_status_display }}</span></td>
+      <td><a href="{% url 'client:job_detail' job_id=job.id %}" class="btn btn-ghost btn-sm">Details</a></td>
+    </tr>
+    {% empty %}<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">{% include "icons/send.html" %}</div><div class="empty-state-title">No sends yet</div><a href="{% url 'client:upload_pdf' %}" class="btn btn-primary">{% include "icons/send.html" %} Send Payslips</a></div></td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}New Client — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Create Client Account</div>
+  <div class="page-subtitle">Set up a new HR admin portal account</div>
+</div>
+<div style="max-width:520px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Account Details</span></div>
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Company</label>
+          <select name="company_id" class="form-control form-select">
+            {% for company in companies %}<option value="{{ company.id }}">{{ company.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="required">*</span></label>
+          <input type="email" name="email" class="form-control" placeholder="admin@company.com" value="{{ form.email.value|default:'' }}" />
+          {% if form.email.errors %}<div class="form-error">{{ form.email.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password <span class="required">*</span></label>
+            <input type="password" name="password" class="form-control" placeholder="Min 8 characters" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password <span class="required">*</span></label>
+            <input type="password" name="password2" class="form-control" placeholder="Repeat password" />
+          </div>
+        </div>
+        {% if form.non_field_errors %}<div class="alert alert-error mb-16">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        <div class="flex gap-8 mt-8">
+          <a href="{% url 'superadmin:client_list' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

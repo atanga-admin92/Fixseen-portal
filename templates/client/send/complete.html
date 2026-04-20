@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sent! — FixSeen Portal{% endblock %}
+{% block extra_head %}
+<style>
+@keyframes popIn{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.success-icon{animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+.complete-content{animation:fadeUp 0.4s 0.2s ease both}
+</style>
+{% endblock %}
+{% block content %}
+<div style="max-width:540px;margin:48px auto;text-align:center;">
+  <div class="success-icon" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--green),#20c45a);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;box-shadow:0 12px 32px rgba(52,199,89,0.30);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" width="40" height="40"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="complete-content">
+    <h1 style="font-size:28px;font-weight:800;color:var(--gray-900);letter-spacing:-0.03em;margin-bottom:8px;">Payslips sent!</h1>
+    <p style="font-size:15px;color:var(--gray-400);margin-bottom:32px;line-height:1.6;"><strong style="color:var(--gray-700);">{{ job.emails_sent }}</strong> payslip{{ job.emails_sent|pluralize }} dispatched for <strong style="color:var(--gray-700);">{{ job.payroll_period }}</strong>.</p>
+    <div class="card mb-24" style="text-align:left;">
+      <div class="card-header"><span class="card-title">Send Receipt</span></div>
+      <div class="card-body">
+        <table class="summary-table">
+          <tr><td>Job ID</td><td style="font-family:monospace;font-size:12px;color:var(--gray-400);">{{ job.id }}</td></tr>
+          <tr><td>Period</td><td>{{ job.payroll_period }}</td></tr>
+          <tr><td>Emails sent</td><td>{{ job.emails_sent }}</td></tr>
+          <tr><td>Credits used</td><td style="color:var(--orange);font-weight:700;">{{ job.credits_used }}</td></tr>
+          <tr><td>Completed</td><td>{{ job.completed_at|date:"j F Y, H:i" }}</td></tr>
+          <tr><td>Status</td><td><span class="badge badge-sent"><span class="badge-dot"></span>{{ job.get_status_display }}</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="flex gap-12" style="justify-content:center;">
+      <a href="{% url 'client:send_history' %}" class="btn btn-secondary">View History</a>
+      <a href="{% url 'client:upload_pdf' %}" class="btn btn-primary">{% include "icons/send.html" %} Send More</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Overview — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Good morning, Admin 👋</div>
+  <div class="page-subtitle">{% now "l, j F Y" %} · System operational</div>
+</div>
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-card-icon" style="background:var(--blue-light);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    </div>
+    <div class="stat-label">Total Clients</div>
+    <div class="stat-value">{{ stats.total_clients }}</div>
+    <div class="stat-sub">Active accounts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon" style="background:var(--green-light);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    </div>
+    <div class="stat-label">Active Credits</div>
+    <div class="stat-value">{{ stats.active_credits|default:"0" }}</div>
+    <div class="stat-sub">Across all accounts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon" style="background:var(--purple-light);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#af52de" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </div>
+    <div class="stat-label">Emails Sent</div>
+    <div class="stat-value">{{ stats.emails_sent|default:"0" }}</div>
+    <div class="stat-sub">This month</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon" style="background:var(--orange-light);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    </div>
+    <div class="stat-label">Expiring Soon</div>
+    <div class="stat-value" style="color:var(--orange);">{{ stats.expiring_soon }}</div>
+    <div class="stat-sub">Within 14 days</div>
+  </div>
+</div>
+<div class="grid-2" style="align-items:start;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Recent Clients</span>
+      <a href="{% url 'superadmin:client_list' %}" class="btn btn-ghost btn-sm">See all</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Client</th><th>Credits</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for client in recent_clients %}
+          <tr>
+            <td>
+              <a href="{% url 'superadmin:client_detail' client_id=client.id %}" style="text-decoration:none;">
+                <div class="client-cell">
+                  <div class="client-avatar">{{ client.company.name|default:client.email|slice:":1"|upper }}</div>
+                  <div>
+                    <div class="td-primary">{{ client.company.name|default:client.email }}</div>
+                    <div class="td-muted">{{ client.email }}</div>
+                  </div>
+                </div>
+              </a>
+            </td>
+            <td><span style="font-weight:600;font-size:13px;">{{ client.available_credits }}</span></td>
+            <td><span class="badge badge-{{ client.account_status }}"><span class="badge-dot"></span>{{ client.account_status|title }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3"><div class="empty-state" style="padding:32px 0;">No clients yet.</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Activity Log</span>
+      <a href="{% url 'superadmin:activity_log' %}" class="btn btn-ghost btn-sm">View all</a>
+    </div>
+    {% for log in recent_activity %}
+    <div class="activity-item">
+      <div class="activity-icon activity-icon-{% if 'sent' in log.event_type %}send{% elif 'credit' in log.event_type %}credit{% elif 'suspend' in log.event_type %}suspend{% else %}list{% endif %}">
+        {% if 'sent' in log.event_type %}{% include "icons/send.html" %}{% elif 'credit' in log.event_type %}{% include "icons/credit.html" %}{% else %}{% include "icons/list.html" %}{% endif %}
+      </div>
+      <div class="activity-body">
+        <div class="activity-title">{{ log.get_event_type_display }}</div>
+        <div class="activity-detail">{{ log.detail }}</div>
+      </div>
+      <div class="activity-time">{{ log.created_at|timesince }} ago</div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="padding:32px 0;">No activity yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

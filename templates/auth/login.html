@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Sign In — PaySlip Portal{% endblock %}
+
+{% block extra_head %}
+<style>
+  body { background: var(--gray-100); }
+  .main-auth { margin-left: 0 !important; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .login-wrap { width: 100%; max-width: 420px; }
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--blue), #34aadc);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px; box-shadow: 0 8px 24px rgba(0,113,227,0.25);
+  }
+  .login-logo-icon svg { width: 26px; height: 26px; stroke: white; }
+  .login-logo h1 { font-size: 22px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.03em; margin-bottom: 4px; }
+  .login-logo p { font-size: 14px; color: var(--gray-400); }
+  .login-card { background: var(--white); border-radius: var(--radius-xl); border: 1px solid var(--gray-200); padding: 32px; box-shadow: var(--shadow-lg); }
+  .login-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--gray-400); }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="main main-auth">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <h1>PaySlip Portal</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    {% if messages %}
+    <div class="alerts mb-16">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="login-card">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="id_email">Email address</label>
+          <input type="email" id="id_email" name="email" class="form-control {% if form.email.errors %}error{% endif %}"
+            placeholder="you@company.com" value="{{ form.email.value|default:'' }}" autocomplete="email" autofocus />
+          {% if form.email.errors %}<div class="form-error">{{ form.email.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_password">Password</label>
+          <input type="password" id="id_password" name="password" class="form-control {% if form.password.errors %}error{% endif %}"
+            placeholder="••••••••" autocomplete="current-password" />
+          {% if form.password.errors %}<div class="form-error">{{ form.password.errors|join:", " }}</div>{% endif %}
+        </div>
+        {% if form.non_field_errors %}
+        <div class="alert alert-error mb-16">{{ form.non_field_errors|join:" " }}</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-full" style="justify-content:center; padding: 12px;">
+          Sign In
+        </button>
+      </form>
+    </div>
+
+    <div class="login-footer">
+      &copy; {% now "Y" %} PaySlip Portal. All rights reserved.
+    </div>
+  </div>
+</main>
+{% endblock %}

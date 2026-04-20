@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ client.company.name }} — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="flex items-center gap-8 mb-16" style="font-size:13px;color:var(--gray-400);">
+  <a href="{% url 'superadmin:client_list' %}" style="color:var(--gray-400);">Clients</a>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  <span style="color:var(--gray-700);font-weight:600;">{{ client.company.name|default:client.email }}</span>
+</div>
+<div class="page-header">
+  <div class="page-header-row">
+    <div class="flex items-center gap-16">
+      <div class="avatar avatar-lg" style="border-radius:14px;font-size:18px;">{{ client.company.name|default:client.email|slice:":1"|upper }}</div>
+      <div><div class="page-title">{{ client.company.name|default:client.email }}</div><div class="page-subtitle">{{ client.email }}</div></div>
+    </div>
+    <div class="flex gap-8">
+      <form method="post" action="{% url 'superadmin:suspend_client' client_id=client.id %}">
+        {% csrf_token %}
+        {% if client.is_suspended %}<button type="submit" class="btn btn-success">Unsuspend</button>
+        {% else %}<button type="submit" class="btn btn-danger">Suspend</button>{% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+<div class="stats-row stats-row-3 mb-24">
+  <div class="stat-card"><div class="stat-label">Available Credits</div><div class="stat-value {% if available == 0 %}text-danger{% endif %}">{{ available }}</div>{% if client.next_expiry %}<div class="stat-sub">Expires {{ client.next_expiry|date:"d M Y" }}</div>{% endif %}</div>
+  <div class="stat-card"><div class="stat-label">Total Sends</div><div class="stat-value">{{ client.send_jobs.count }}</div><div class="stat-sub">All time</div></div>
+  <div class="stat-card"><div class="stat-label">Account Status</div><div class="stat-value" style="font-size:20px;margin-top:4px;"><span class="badge badge-{{ status }}"><span class="badge-dot"></span>{{ status|title }}</span></div><div class="stat-sub">Joined {{ client.date_joined|date:"d M Y" }}</div></div>
+</div>
+<div class="grid-2" style="align-items:start;">
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Add Credits</span></div>
+      <div class="card-body">
+        <form method="post" action="{% url 'superadmin:add_credits' client_id=client.id %}">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Amount <span class="required">*</span></label><input type="number" name="amount" min="1" placeholder="e.g. 500" class="form-control" /></div>
+            <div class="form-group"><label class="form-label">Expiry Date</label><input type="date" name="expires_at" class="form-control" value="{{ credit_form.expires_at.initial }}" /><div class="form-hint">Defaults to 90 days</div></div>
+          </div>
+          <div class="form-group"><label class="form-label">Internal Note</label><textarea name="notes" class="form-control" placeholder="e.g. April invoice paid"></textarea></div>
+          <button type="submit" class="btn btn-primary">Add Credits</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Credit Batches</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Added</th><th>Amount</th><th>Remaining</th><th>Expires</th><th>Status</th></tr></thead><tbody>
+        {% for batch in credit_history %}<tr><td style="font-size:13px;color:var(--gray-500);">{{ batch.created_at|date:"d M Y" }}</td><td style="font-weight:600;">{{ batch.amount }}</td><td>{{ batch.remaining }}</td><td style="font-size:13px;color:var(--gray-500);">{{ batch.expires_at|date:"d M Y" }}</td><td>{% if batch.is_voided %}<span class="badge badge-suspended"><span class="badge-dot"></span>Voided</span>{% elif batch.is_expired %}<span class="badge badge-no_credits"><span class="badge-dot"></span>Expired</span>{% else %}<span class="badge badge-active"><span class="badge-dot"></span>Active</span>{% endif %}</td></tr>
+        {% empty %}<tr><td colspan="5"><div class="empty-state" style="padding:24px 0;">No credits yet.</div></td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Activity</span></div>
+    {% for log in activity_log %}
+    <div class="activity-item">
+      <div class="activity-icon activity-icon-{% if 'credit' in log.event_type %}credit{% elif 'sent' in log.event_type %}send{% else %}list{% endif %}">{% if 'credit' in log.event_type %}{% include "icons/credit.html" %}{% elif 'sent' in log.event_type %}{% include "icons/send.html" %}{% else %}{% include "icons/list.html" %}{% endif %}</div>
+      <div class="activity-body"><div class="activity-title">{{ log.get_event_type_display }}</div><div class="activity-detail">{{ log.detail }}</div></div>
+      <div class="activity-time">{{ log.created_at|timesince }} ago</div>
+    </div>
+    {% empty %}<div class="empty-state" style="padding:32px 0;">No activity yet.</div>{% endfor %}
+  </div>
+</div>
+{% endblock %}

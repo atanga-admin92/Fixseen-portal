@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Account — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-title">Account</div><div class="page-subtitle">Manage your account and security settings</div></div>
+<div style="max-width:600px;display:flex;flex-direction:column;gap:20px;">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Profile</span></div>
+    <div class="card-body">
+      <div class="flex items-center gap-16" style="margin-bottom:20px;">
+        <div class="avatar" style="width:56px;height:56px;font-size:20px;border-radius:16px;">{{ user.company.name|default:user.email|slice:":1"|upper }}</div>
+        <div><div style="font-size:18px;font-weight:800;color:var(--gray-900);">{{ user.company.name|default:"—" }}</div><div style="font-size:14px;color:var(--gray-400);margin-top:2px;">{{ user.email }}</div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13.5px;">
+        <div><div style="color:var(--gray-400);margin-bottom:4px;">Member since</div><div style="font-weight:600;">{{ user.date_joined|date:"j F Y" }}</div></div>
+        <div><div style="color:var(--gray-400);margin-bottom:4px;">Available credits</div><div style="font-weight:600;">{{ user.available_credits }}</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Change Password</span></div>
+    <div class="card-body">
+      <form method="post" novalidate>{% csrf_token %}
+        <div class="form-group"><label class="form-label">Current Password <span class="required">*</span></label><input type="password" name="current_password" class="form-control" placeholder="Your current password" /></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">New Password <span class="required">*</span></label><input type="password" name="new_password" class="form-control" placeholder="Min 8 characters" /></div>
+          <div class="form-group"><label class="form-label">Confirm Password <span class="required">*</span></label><input type="password" name="confirm_password" class="form-control" placeholder="Repeat new password" /></div>
+        </div>
+        {% if form.non_field_errors %}<div class="alert alert-error mb-16">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

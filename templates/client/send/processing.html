@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Sending Payslips…{% endblock %}
+{% block extra_head %}
+<style>
+  @keyframes spin    { to { transform: rotate(360deg); } }
+  @keyframes fadeIn  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  @keyframes barFill { from{width:5%} to{width:95%} }
+  .process-wrap { max-width: 520px; margin: 80px auto; text-align: center; animation: fadeIn 0.4s ease; }
+  .progress-outer { height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; margin: 20px 0; }
+  .progress-inner { height: 100%; background: linear-gradient(90deg, var(--blue), #34aadc);
+                    border-radius: 3px; animation: barFill 60s linear forwards; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="process-wrap">
+  <div style="width:72px;height:72px;border-radius:50%;border:4px solid var(--gray-200);
+              border-top-color:var(--blue);animation:spin 1s linear infinite;margin:0 auto 24px;"></div>
+
+  <h1 style="font-size:22px;font-weight:800;color:var(--gray-900);letter-spacing:-0.02em;margin-bottom:8px;">
+    Sending Payslips
+  </h1>
+  <p style="font-size:14px;color:var(--gray-400);line-height:1.6;margin-bottom:24px;">
+    Your payslips are being <strong style="color:var(--gray-700);">split, encrypted with AES-256</strong>,
+    and emailed individually. Each recipient gets their own password-protected PDF.
+  </p>
+
+  <div class="progress-outer"><div class="progress-inner"></div></div>
+
+  <div id="statusText" style="font-size:13px;color:var(--gray-400);margin-bottom:28px;">
+    Initialising…
+  </div>
+
+  <div class="card" style="text-align:left;">
+    <div class="card-body" style="padding:16px 18px;">
+      <div style="font-size:12.5px;font-weight:700;color:var(--gray-400);
+                  text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">What's happening now</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--gray-600);">
+        <div class="flex items-center gap-10">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+          Splitting bulk PDF into individual pages
+        </div>
+        <div class="flex items-center gap-10">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14" style="animation:spin 1s linear infinite;stroke:var(--blue);"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+          Encrypting each page with employee's NRC password (AES-256)
+        </div>
+        <div class="flex items-center gap-10">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gray-300)" stroke-width="1.8" stroke-linecap="round" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg>
+          Emailing encrypted payslips to each employee
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:var(--gray-300);margin-top:20px;">
+    This page will update automatically when complete. Safe to leave — the job continues in the background.
+  </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let pollCount = 0;
+(function poll() {
+  pollCount++;
+  fetch("{% url 'client:send_processing_status' job_id=job.id %}")
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('statusText');
+      if (data.sent || data.failed) {
+        el.textContent = `${data.sent} sent, ${data.failed} failed…`;
+      }
+      if (data.redirect) {
+        if (data.status === 'sent') {
+          window.location = "{% url 'client:send_complete' job_id=job.id %}";
+        } else {
+          window.location = "{% url 'client:dashboard' %}";
+        }
+      } else {
+        setTimeout(poll, 4000);
+      }
+    })
+    .catch(() => setTimeout(poll, 6000));
+})();
+</script>
+{% endblock %}

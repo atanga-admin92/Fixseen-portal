@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Activity Log — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-title">Activity Log</div><div class="page-subtitle">Immutable audit trail of all system events</div></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>Time</th><th>Event</th><th>Actor</th><th>Company</th><th>Detail</th></tr></thead><tbody>
+  {% for log in logs %}
+  <tr><td style="font-size:12px;color:var(--gray-400);white-space:nowrap;">{{ log.created_at|date:"d M Y H:i" }}</td><td><span class="badge {% if 'credit' in log.event_type %}badge-active{% elif 'sent' in log.event_type %}badge-processing{% elif 'suspend' in log.event_type %}badge-suspended{% else %}badge-pending{% endif %}"><span class="badge-dot"></span>{{ log.get_event_type_display }}</span></td><td style="font-size:13px;font-weight:500;">{{ log.actor.email|default:"System" }}</td><td style="font-size:13px;color:var(--gray-500);">{{ log.company.name|default:"—" }}</td><td style="font-size:13px;color:var(--gray-600);">{{ log.detail }}</td></tr>
+  {% empty %}<tr><td colspan="5"><div class="empty-state">No activity recorded yet.</div></td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

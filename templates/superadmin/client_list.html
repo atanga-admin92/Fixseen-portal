@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Clients — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-header-row">
+    <div><div class="page-title">Clients</div><div class="page-subtitle">{{ clients|length }} account{{ clients|length|pluralize }} total</div></div>
+    <a href="{% url 'superadmin:create_client' %}" class="btn btn-primary">{% include "icons/plus.html" %} New Client</a>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header" style="border-bottom:1px solid var(--gray-200);">
+    <form method="get" style="flex:1;max-width:380px;">
+      <div class="search-bar">{% include "icons/search.html" %}<input type="text" name="q" value="{{ q }}" placeholder="Search clients…" /></div>
+    </form>
+    {% if q %}<a href="{% url 'superadmin:client_list' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Client</th><th>Credits</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for item in clients %}{% with client=item.obj %}
+        <tr>
+          <td><div class="client-cell"><div class="client-avatar">{{ client.company.name|default:client.email|slice:":1"|upper }}</div><div><div class="td-primary"><a href="{% url 'superadmin:client_detail' client_id=client.id %}">{{ client.company.name|default:client.email }}</a></div><div class="td-muted">{{ client.email }}</div></div></div></td>
+          <td><span style="font-weight:600;font-size:13px;{% if item.available == 0 %}color:var(--red){% endif %}">{{ item.available }}</span></td>
+          <td><span style="font-size:13px;color:var(--gray-600);">{% if item.next_expiry %}{{ item.next_expiry|date:"d M Y" }}{% else %}—{% endif %}</span></td>
+          <td><span class="badge badge-{{ item.status }}"><span class="badge-dot"></span>{{ item.status|title }}</span></td>
+          <td><div class="flex gap-8"><a href="{% url 'superadmin:client_detail' client_id=client.id %}" class="btn btn-secondary btn-sm">View</a></div></td>
+        </tr>
+        {% endwith %}{% empty %}
+        <tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">{% include "icons/users.html" %}</div><div class="empty-state-title">No clients found</div><a href="{% url 'superadmin:create_client' %}" class="btn btn-primary">{% include "icons/plus.html" %} New Client</a></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

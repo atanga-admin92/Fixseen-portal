@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Send Job — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="flex items-center gap-8 mb-16" style="font-size:13px;color:var(--gray-400);">
+  <a href="{% url 'client:send_history' %}" style="color:var(--gray-400);">History</a>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  <span style="color:var(--gray-700);font-weight:600;">Job Detail</span>
+</div>
+<div class="page-header">
+  <div class="page-header-row">
+    <div><div class="page-title">{{ job.payroll_period|default:"Send Job" }}</div><div class="page-subtitle">{{ job.created_at|date:"j F Y" }} at {{ job.created_at|time:"H:i" }} · <span class="badge badge-{{ job.status }}" style="font-size:12px;vertical-align:middle;"><span class="badge-dot"></span>{{ job.get_status_display }}</span></div></div>
+    <a href="{% url 'client:upload_pdf' %}" class="btn btn-primary">{% include "icons/send.html" %} New Send</a>
+  </div>
+</div>
+<div class="stats-row stats-row-3 mb-24">
+  <div class="stat-card"><div class="stat-label">Total Pages</div><div class="stat-value">{{ job.total_pages }}</div></div>
+  <div class="stat-card"><div class="stat-label">Successfully Sent</div><div class="stat-value" style="color:var(--green);">{{ job.emails_sent }}</div></div>
+  <div class="stat-card"><div class="stat-label">Credits Used</div><div class="stat-value">{{ job.credits_used }}</div></div>
+</div>
+{% if job.error_message %}<div class="alert alert-error mb-20"><strong>Job failed:</strong> {{ job.error_message }}</div>{% endif %}
+<div class="card">
+  <div class="card-header"><span class="card-title">Delivery Log</span></div>
+  <div style="padding:12px 16px;border-bottom:1px solid var(--gray-200);background:var(--gray-50);">
+    <div class="search-bar" style="max-width:340px;">{% include "icons/search.html" %}<input type="text" id="recipientSearch" placeholder="Filter by email or name…" oninput="filterLog(this.value)" /></div>
+  </div>
+  <div class="table-wrap"><table id="logTable"><thead><tr><th>Page</th><th>Employee ID</th><th>Email</th><th>Status</th><th>Sent at</th></tr></thead><tbody>
+    {% for log in logs %}
+    <tr class="log-row" data-search="{{ log.recipient_email|lower }} {{ log.recipient_name|lower }}">
+      <td style="font-size:13px;">{{ log.page_number }}</td>
+      <td style="font-family:monospace;font-size:13px;">{{ log.extracted_id|default:"—" }}</td>
+      <td style="font-size:13.5px;font-weight:500;">{{ log.recipient_email|default:"—" }}</td>
+      <td><span class="badge badge-{{ log.status }}"><span class="badge-dot"></span>{{ log.get_status_display }}</span></td>
+      <td style="font-size:12.5px;color:var(--gray-400);">{{ log.sent_at|time:"H:i"|default:"—" }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="5"><div class="empty-state" style="padding:32px 0;"><div class="empty-state-title">No delivery records yet</div></div></td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>function filterLog(q){q=q.toLowerCase().trim();document.querySelectorAll('.log-row').forEach(r=>{r.style.display=(!q||r.dataset.search.includes(q))?'':'none';});}</script>{% endblock %}

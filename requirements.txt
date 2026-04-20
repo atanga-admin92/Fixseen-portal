@@ -1,0 +1,33 @@
+# ─── Django Core ────────────────────────────────────────────────────────────
+Django==4.2.13
+psycopg2-binary==2.9.9          # PostgreSQL adapter
+django-environ==0.11.2          # .env file support
+whitenoise==6.7.0               # Static file serving (no nginx needed for statics)
+gunicorn==22.0.0                # WSGI server
+
+# ─── Async / Task Queue ──────────────────────────────────────────────────────
+celery==5.4.0
+redis==5.0.7                    # Redis client for Celery broker + result backend
+django-celery-beat==2.6.0       # DB-backed periodic tasks (cron via Celery Beat)
+django-celery-results==2.5.1    # Store Celery task results in DB
+
+# ─── PDF Processing ──────────────────────────────────────────────────────────
+PyPDF2==3.0.1                   # PDF reading, page extraction, metadata
+pikepdf==9.2.0                  # AES-256 PDF encryption (military grade)
+reportlab==4.2.0                # Optional: generate cover pages / receipts
+
+# ─── Email ───────────────────────────────────────────────────────────────────
+django-anymail==11.1            # Pluggable email backends (Mailgun, SendGrid, etc.)
+
+# ─── Storage ─────────────────────────────────────────────────────────────────
+django-storages==1.14.3         # S3 / Azure Blob (V2 BYOS readiness)
+boto3==1.34.144                 # AWS S3 SDK
+
+# ─── Security & Auth ─────────────────────────────────────────────────────────
+django-ratelimit==4.1.0         # View-level rate limiting
+
+# ─── Monitoring & Logging ────────────────────────────────────────────────────
+sentry-sdk==2.7.1               # Error tracking (add DSN to .env)
+
+# ─── Dev & Testing ───────────────────────────────────────────────────────────
+django-extensions==3.2.3

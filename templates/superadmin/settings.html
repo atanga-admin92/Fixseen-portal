@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Settings — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Settings</div>
+  <div class="page-subtitle">System configuration and defaults</div>
+</div>
+
+<div style="max-width:640px; display:flex; flex-direction:column; gap:12px;">
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">Credit Expiry Default</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">Number of days before credits expire after being added</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500;">90 days</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">Email Sender Address</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">The From address used when sending payslips</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500;">{{ DEFAULT_FROM_EMAIL|default:"payslips@fixseen.com" }}</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">Maximum Upload Size</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">Maximum file size per payslip PDF upload</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500;">200 MB</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">PDF HR Master Key</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">Owner password applied to every encrypted payslip</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500; font-family:monospace;">••••••••••••••••</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">Maintenance Freeze</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">Sending is blocked between December 26 and 31 every year</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500;">Dec 26 – 31</span>
+        <span class="badge badge-active"><span class="badge-dot"></span>Active</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-weight:600; font-size:14px; color:var(--gray-900);">Celery Worker Concurrency</div>
+        <div style="font-size:13px; color:var(--gray-400); margin-top:3px;">Max parallel tasks — hard capped to prevent OOM on server</div>
+      </div>
+      <div class="flex items-center gap-12">
+        <span style="font-size:14px; color:var(--gray-600); font-weight:500;">2 workers</span>
+        <button class="btn btn-secondary btn-sm">Edit</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Edit Client — FixSeen Portal{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-title">Edit Client</div></div>
+<div style="max-width:520px;"><div class="card"><div class="card-header"><span class="card-title">Account Details</span></div><div class="card-body">
+  <form method="post" novalidate>{% csrf_token %}
+    <div class="form-group"><label class="form-label">Email Address</label><input type="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" /></div>
+    <div class="flex gap-8 mt-8"><a href="{% url 'superadmin:client_detail' client_id=client.id %}" class="btn btn-secondary">Cancel</a><button type="submit" class="btn btn-primary">Save Changes</button></div>
+  </form>
+</div></div></div>
+{% endblock %}

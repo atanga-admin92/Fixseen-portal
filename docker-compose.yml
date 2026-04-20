@@ -1,0 +1,112 @@
+# docker-compose.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# LOCAL DEVELOPMENT  — mirrors the Coolify production setup.
+# Usage:  docker-compose up --build
+#
+# In Coolify (production):
+#   - Create a PostgreSQL resource   → copy DATABASE_URL to .env
+#   - Create a Redis resource        → copy REDIS_URL to .env
+#   - Deploy this repo as 3 services:
+#       1. web     (Dockerfile, CMD: gunicorn ...)
+#       2. worker  (Dockerfile, CMD: celery -A config worker --concurrency=2)
+#       3. beat    (Dockerfile, CMD: celery -A config beat)
+#   - Mount a persistent volume to /app/media
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       fixseen_db
+      POSTGRES_USER:     fixseen
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-devpassword}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixseen"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Django Web ──────────────────────────────────────────────────────────────
+  web:
+    build: .
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn config.wsgi:application
+             --bind 0.0.0.0:8000
+             --workers 3
+             --timeout 120
+             --access-logfile -"
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_files:/app/media         # Persistent payslip storage
+      - .:/app                         # Hot-reload in dev (remove in prod)
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://fixseen:${DB_PASSWORD:-devpassword}@db:5432/fixseen_db
+      REDIS_URL:    redis://redis:6379/0
+      DJANGO_SETTINGS_MODULE: config.settings.development
+    depends_on:
+      db:    { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  # ── Celery Worker ───────────────────────────────────────────────────────────
+  worker:
+    build: .
+    restart: unless-stopped
+    # HARD CAP: --concurrency=2 prevents OOM on 4GB Hetzner VPS
+    command: celery -A config worker --concurrency=2 --loglevel=info
+    volumes:
+      - media_files:/app/media
+      - .:/app
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://fixseen:${DB_PASSWORD:-devpassword}@db:5432/fixseen_db
+      REDIS_URL:    redis://redis:6379/0
+      DJANGO_SETTINGS_MODULE: config.settings.development
+    depends_on:
+      db:    { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  # ── Celery Beat (periodic tasks) ────────────────────────────────────────────
+  beat:
+    build: .
+    restart: unless-stopped
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://fixseen:${DB_PASSWORD:-devpassword}@db:5432/fixseen_db
+      REDIS_URL:    redis://redis:6379/0
+      DJANGO_SETTINGS_MODULE: config.settings.development
+    depends_on:
+      - db
+      - redis
+      - web   # Beat needs DB migrations to exist
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_files:      # ← Mount this as a Coolify persistent volume in production

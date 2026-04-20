@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Account Suspended — FixSeen Portal{% endblock %}
+{% block content %}
+<div style="max-width:500px;margin:64px auto;text-align:center;">
+  <div style="width:88px;height:88px;border-radius:50%;background:var(--red-light);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;border:2px solid #ffc5c2;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+  </div>
+  <h1 style="font-size:26px;font-weight:800;color:var(--gray-900);letter-spacing:-0.03em;margin-bottom:10px;">Account Suspended</h1>
+  <p style="font-size:15px;color:var(--gray-500);line-height:1.7;margin-bottom:28px;">Your account has been temporarily suspended. Please contact your administrator to resolve this and restore access.</p>
+  <a href="{% url 'logout' %}" class="btn btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="15" height="15"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a>
+</div>
+{% endblock %}
