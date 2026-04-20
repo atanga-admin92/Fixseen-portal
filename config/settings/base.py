@@ -144,7 +144,7 @@ MAINTENANCE_FREEZE_END   = (12, 31)   # Dec 31
 
 # ─── Sentry (optional — add DSN to .env to activate) ─────────────────────────
 SENTRY_DSN = env("SENTRY_DSN", default="")
-if SENTRY_DSN:
+if SENTRY_DSN and SENTRY_DSN.lower() not in ("none", "false", ""):
     import sentry_sdk
     sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=0.2)
 
