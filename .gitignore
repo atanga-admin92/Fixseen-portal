@@ -46,3 +46,4 @@ celerybeat.pid
 # ─── Payslip uploads (never commit PDF data) ─────────────────────────────────
 media/payslip_uploads/
 media/payslip_outputs/
+.venv/
