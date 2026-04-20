@@ -5,9 +5,8 @@ WORKDIR /app
 
 # System deps for pikepdf (needs qpdf) and psycopg2
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    libqpdf-dev \
+    libpq5 \
+    qpdf \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
